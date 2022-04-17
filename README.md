@@ -1,5 +1,5 @@
 # Code for Panoramic Encoder
-This code can be used to reproduce the results of our work on PersonaChat, Ubuntu V1, Ubuntu V2, and Douban datasets.
+This code can be used to reproduce the results of [Panoramic-Encoder: A Fast and Accurate Response Selection Paradigm for Generation-Based Dialogue Systems](https://arxiv.org/abs/2106.01263) on PersonaChat, Ubuntu V1, Ubuntu V2, and Douban datasets.
 
 ## Dependencies
 The code is implemented using python 3.8 and PyTorch v1.8.1(please choose the correct command that match your CUDA version from [PyTorch](https://pytorch.org/get-started/previous-versions/))
