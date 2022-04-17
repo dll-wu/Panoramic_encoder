@@ -6,7 +6,7 @@ The code is implemented using python 3.8 and PyTorch v1.8.1(please choose the co
 
 Anaconda / Miniconda is recommended to set up this codebase.
 
-There are only minor differences between the model files named "panoramic_encoder.py" in different directories, e.g., the pre-trained model used for the Douban corpus is Bert-base-Chinese, not the English version.
+There are only minor differences between the model files named "panoramic_encoder.py" in different directories, e.g., the pre-trained model used for the Douban corpus is "Bert-base-Chinese", not the English version.
 
 You may use the command below:
 ```shell
