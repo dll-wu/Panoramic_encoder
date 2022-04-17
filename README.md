@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ### PersonChat
 
-- First, please download the [processed data and model checkpoint (421M in total)](https://www.dropbox.com/s/zx4bhdc83qd514y/data_and_checkpoint_for_PersonaChat.zip?dl=0).
+- First, please download the [processed data and model checkpoint (421M in total)](https://www.dropbox.com/s/zx4bhdc83qd514y/data_and_checkpoint_for_PersonaChat.zip?dl=0).
 - Inference
     ```shell
     unzip data_and_checkpoint_for_PersonaChat.zip -d persona-chat/
