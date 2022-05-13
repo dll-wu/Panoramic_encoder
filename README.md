@@ -55,7 +55,7 @@ pip install -r requirements.txt
 
 ### Douban
 
-- First, please download the [processed data and model checkpoint (527M in total)](https://www.dropbox.com/s/an1atyt5tbjktwy/data_and_checkpoint_for_Douban.zip?dl=0).
+- First, please download the [processed data and model checkpoint (892M in total)](https://www.dropbox.com/s/an1atyt5tbjktwy/data_and_checkpoint_for_Douban.zip?dl=0).
 - Inference
     ```shell
     unzip data_and_checkpoint_for_Douban.zip -d douban/
