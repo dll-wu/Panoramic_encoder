@@ -15,28 +15,45 @@ from torch.nn.parallel import DataParallel
 SPECIAL_TOKENS = ["[CLS]", "[SEP]", "[unused1]", "[unused2]"]
 
 
-def build_input_from_segments(history, responses, tokenizer):
+def build_input_from_segments(history, responses, tokenizer, args):
     bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(
         SPECIAL_TOKENS
     )
     sequence = history  # on douban dataset
-    if len(sequence) % 2 == 1:
-        sequence = [
-            [speaker1 if i % 2 == 1 else speaker2] + s  # history: start with speaker2, end with speaker2
-            for i, s in enumerate(sequence)
-        ]
+    if tokenizer.eos_token_id is None:
+        if len(sequence) % 2 == 1:
+            sequence = [
+                [speaker1 if i % 2 == 1 else speaker2] + s  # history: start with speaker2, end with speaker2
+                for i, s in enumerate(sequence)
+            ]
+        else:
+            sequence = [
+                [speaker2 if i % 2 == 1 else speaker1] + s  # history: start with speaker1, end with speaker2
+                for i, s in enumerate(sequence)
+            ]
     else:
-        sequence = [
-            [speaker2 if i % 2 == 1 else speaker1] + s  # history: start with speaker1, end with speaker2
-            for i, s in enumerate(sequence)
-        ]
+        eou = tokenizer.convert_tokens_to_ids(tokenizer.eos_token)
+        if len(sequence) % 2 == 1:
+            sequence = [
+                [speaker1 if i % 2 == 1 else speaker2] + s + [eou]  # history: start with speaker2, end with speaker2
+                for i, s in enumerate(sequence)
+            ]
+        else:
+            sequence = [
+                [speaker2 if i % 2 == 1 else speaker1] + s + [eou]  # history: start with speaker1, end with speaker2
+                for i, s in enumerate(sequence)
+            ]
+
+    MaxRes = 256
+    if args.use_post_training == 'bert_fp':
+        MaxRes = 128
 
     max_response_length = max([len(res)+2 for res in responses])
-    max_response_length = min(max_response_length, 256)
+    max_response_length = min(max_response_length, MaxRes)
     while True:
         sequence_ = [[bos]] + sequence  + [[eos]]
         sequence_his = list(chain(*sequence_))
-        if len(sequence_his) <= 256:
+        if len(sequence_his) <= 512 - MaxRes:
             break
 
         sequence = sequence[1:]
@@ -51,7 +68,7 @@ def build_input_from_segments(history, responses, tokenizer):
     start = len(instance['input_ids'])
     for i, response in enumerate(responses):
         # response = [bos] + response[:max_response_length-2] + [eos]
-        response = [bos] + response[-254:] + [eos]
+        response = [bos] + response[-MaxRes+2:] + [eos]
         instance["input_ids"].extend(response)
         bos_locations.append(start)
         start += len(response)
@@ -69,7 +86,7 @@ def build_input_from_segments(history, responses, tokenizer):
 def rank_responses(history, responses, tokenizer, model, args):
     special_tokens_ids = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS)    
     instance = build_input_from_segments(
-        history, responses, tokenizer
+        history, responses, tokenizer, args
     )
         
     input_ids = pad_sequence(
@@ -146,6 +163,9 @@ def rank_label(records, replies, tokenizer, model, args):
 class Ranker:
     def __init__(self, model_path, args):
         tokenizer = BertTokenizer.from_pretrained(model_path, do_lower_case=True)
+        if args.use_post_training == 'bert_fp':
+            special_tokens_dict = {'eos_token': '[eos]'}
+            num_added_toks = tokenizer.add_special_tokens(special_tokens_dict)
         config = BertConfig.from_pretrained(model_path)
         model = PanoramicEncoder(config)
         model_files = os.listdir(model_path)
@@ -158,7 +178,7 @@ class Ranker:
         specific_path = os.path.join(model_path, model_file)
         print('Choose model:', specific_path)
         model.load_state_dict(torch.load(specific_path, map_location=args.device))
-        # model.from_pretrained(specific_path)
+        # model.from_pretrained(specific_path) 
         model.to(args.device)
         model.eval()
         self.tokenizer = tokenizer

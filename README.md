@@ -60,6 +60,10 @@ pip install -r requirements.txt
     ```shell
     unzip data_and_checkpoint_for_Douban.zip -d douban/
     cd douban/
+
+    # inference on Douban
     python test.py --model_checkpoint checkpoint_for_Douban
 
+    # inference on Douban(finetune from the checkpoint given by BERT-FP)
+    python test.py --use_post_training bert_fp --model_checkpoint checkpoint_for_Douban_use_bert_FP
     ```

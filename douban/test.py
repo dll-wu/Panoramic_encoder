@@ -27,6 +27,9 @@ parser.add_argument(
     action="store_true",
     help="Use DataParallel or not",
 )
+parser.add_argument(
+        "--use_post_training", type=str, default="NoPost", help="Post training"
+    )
 args = parser.parse_args()
 ranker = Ranker(args.model_checkpoint, args) 
 data_path = 'data/douban.json'
